@@ -8,11 +8,16 @@ class Node{
         string language;
         string language1;
         string language2;
-        int distance;
         int idx;
         int length;
         int idx_language1;
         int idx_language2;
+
+        // Dijkstra
+        int distance;
+        int parent;
+        int visited;
+
         // Construtor
         Node(string l1,string l2,string p, int i, string lang){
             word = p;
@@ -22,7 +27,14 @@ class Node{
             idx = i;
             length = p.length();
         }
+
+        // Operator Overload for PQ
+        bool operator<(const Node& n) const{
+            return this->distance > n.distance; // > NOT < because the lower the better
+        }
 };
+
+
 
 class Edge{
     public:
@@ -107,6 +119,20 @@ void extractSample(string input){
     }
 }
 
+string shortSample(){
+    string sample(
+    "6\n"
+    "portugues frances\n"
+    "ingles espanhol red\n"
+    "espanhol portugues amigo\n"
+    "frances ingles date\n"
+    "frances espanhol la\n"
+    "portugues ingles a\n"
+    "espanhol ingles actual\n"
+    "0");
+    return sample;
+}
+
 string mySample(){
     // First Line, number of words
     // Second, start and finish language
@@ -135,6 +161,64 @@ string mySample(){
     "espanhol ingles actual\n"
     "0");
     return sample;
+}
+
+// Dijkstra algorithm
+vector<Node> Dijkstra(vector<vector<int>> graph, Node s, vector<Node> NList, vector<vector<int>> WMatrix){
+    priority_queue<Node> pq;
+    // Initializing
+    for(unsigned int i = 0; i < NList.size(); i++){
+        NList[i].distance = INT_MAX;
+        NList[i].parent = -2;
+        NList[i].visited = 0;
+        pq.push(NList[i]);
+    }
+    int idx = s.idx;
+    NList[idx].distance = 0;
+    NList[idx].parent = -1;
+    pq.push(NList[idx]);
+    while (!pq.empty()){
+        Node n = pq.top();
+        idx = n.idx;
+        NList[idx].visited = 1;
+        pq.pop();
+        for(unsigned int j = 0; j < graph[idx].size(); j++){
+            int neighbor_idx = graph[idx][j];
+            int c = NList[idx].distance + WMatrix[idx][neighbor_idx];
+            if (NList[neighbor_idx].visited == 0 && c < NList[neighbor_idx].distance){
+                NList[neighbor_idx].distance = c;
+                NList[neighbor_idx].parent = idx;
+                pq.push(NList[neighbor_idx]);
+            }
+        }
+    }
+  return NList;
+}
+
+// Print Dijkstra result
+void printResult(vector<Node> NList, Node end){
+    if (end.parent > -1 ){
+        printResult(NList,NList[end.parent]);
+    }
+    if (end.parent == -2){
+        cout << "nao chegou" << endl;
+    }
+    cout << end.word << "|" << end.language << " ";
+    cout << "distancia: " << end.distance << endl;
+}
+
+// Return Dijkstra result
+int returnDijkstraResult(vector<Node> NList, Node end){
+    int r = 0;
+    if (end.parent > -1 ){
+        r = returnDijkstraResult(NList,NList[end.parent]);
+    }
+    if (end.parent == -2){
+        return -1;
+    }
+    cout << end.word << "|" << end.language << " ";
+    cout << "distancia: " << end.distance << endl;
+    return r;
 }
 
 void buildGraph(string input){
@@ -170,10 +254,18 @@ void buildGraph(string input){
         ss >> from; // Pick the language we want to begin with
         ss >> to; // Pick te language we want to reach
 
-        // Weights Matrix
-        int weightsMatrix[q_words*2][q_words*2];
+        vector <int> idxLangTo;
+        vector <int> idxLangFrom;
 
-        //cout << q_words << " " << from << " " << to << endl;
+        // Weights Matrix
+        //int weightsMatrix[q_words*2][q_words*2];
+        vector<vector <int>> weightsMatrix;
+        for (int i = 0; i < q_words*2; i++){
+            weightsMatrix.push_back({});
+            for(int j = 0; j < q_words*2; j++){
+                weightsMatrix[i].push_back(0);
+            }
+        }      
         
         // Iterates over the string to grab the words
         for (int i = 0; i < q_words; i++ ){
@@ -196,13 +288,24 @@ void buildGraph(string input){
             // Push two, because one word has 2 language associated
             idxCounter += 1;          
             Node newNode1(l1,l2,p,idxCounter,l1);
+            if (newNode1.language == to){
+                idxLangTo.push_back(newNode1.idx);
+            }
+            if (newNode1.language == from){
+                idxLangFrom.push_back(newNode1.idx);
+            }
             idxCounter += 1;  
             Node newNode2(l1,l2,p,idxCounter,l2);
+            if (newNode2.language == to){
+                idxLangTo.push_back(newNode2.idx);
+            }
+            if (newNode2.language == from){
+                idxLangFrom.push_back(newNode2.idx);
+            }
             nodeList.push_back(newNode1);
             nodeList.push_back(newNode2);
-            graph.push_back({-1}); // Put -1 as a neighbor just to initialize
-            graph.push_back({-1}); // Put -1 as a neighbor just to initialize
-            //graph[nodeList.size()-1].push_back(newNode);
+            graph.push_back({}); // Put -1 as a neighbor just to initialize
+            graph.push_back({}); // Put -1 as a neighbor just to initialize            
 
             // Add edge between nodes from the same language
             graph[graph.size()-2].push_back(newNode2.idx);
@@ -236,15 +339,10 @@ void buildGraph(string input){
                     }
                 } 
             }
-            //graph[lang2idx[l1]].push_back(newNode);
-            //vector<Node> newNodeList;
-            //newNodeList.push_back(newNode);
-
-            //cout << l1 << " " << l2 << " " << p << endl;
         }
 
         for (unsigned int i = 0; i < graph.size(); i++){
-            for(unsigned int j = 1; j < graph[i].size(); j++){
+            for(unsigned int j = 0; j < graph[i].size(); j++){
                 int vizinho = graph[i][j];
                 int peso = weightsMatrix[i][vizinho];
                 cout << "(" << vizinho << "," << peso << ")" << " ";
@@ -254,40 +352,89 @@ void buildGraph(string input){
         for(unsigned int i=0; i<nodeList.size(); i++){
             cout << nodeList[i].word << " " << nodeList[i].language << endl;
         }
-        
-        //map<string, int>::iterator it = lang2idx.begin();
-        //while(it != lang2idx.end()){
-        //    cout << "Key: " << it->first << ", Value: " << it->second << endl;
-        //    ++it;
-        //}
+
         std::cout << "-------------" << endl;
+        
+        int impossible = 0;
+        int best_distance = INT_MAX;
+        Node bestNodeFrom = nodeList[0];
+        Node bestNodeTo = nodeList[0];
+        vector<Node> bestNodeList;
+
+        // If the languages exists in the graph
+        if (idxLangFrom.size() != 0 && idxLangTo.size() != 0){            
+            for(unsigned int i = 0; i<idxLangFrom.size();i++){           
+                int idxFrom = idxLangFrom[i];
+                vector<Node> resultNodeList = Dijkstra(graph,nodeList[idxFrom],nodeList,weightsMatrix);
+                int less = INT_MAX;
+                Node bestNode = resultNodeList[0];
+                for(unsigned int j = 0; j<idxLangTo.size();j++){
+                    int idxTo = idxLangTo[j];
+                    int dist = resultNodeList[idxTo].distance + resultNodeList[idxTo].word.length();
+                    if (dist < less){
+                        less = dist;
+                        bestNode = resultNodeList[idxTo];
+                    }
+                }
+                if (less < best_distance){
+                    bestNodeFrom = resultNodeList[idxFrom];
+                    bestNodeTo = resultNodeList[bestNode.idx]; // ver como melhorar isso
+                    best_distance = less;
+                    bestNodeList = resultNodeList;
+                }
+            }
+        }
+        else{
+            impossible = 1;
+            cout << "Impossivel, nao ha linguas no grafo" << endl;
+            cout << "-----------" << endl;
+        }
+
+        //vector<Node> resultNodeList = Dijkstra(graph,nodeList[3],nodeList,weightsMatrix);
+        
+        if (impossible == 0){
+            cout << "De: " << from << ", Para: " << to << endl;
+            cout<< "Saindo de: " << bestNodeFrom.word << "|" << bestNodeFrom.language << endl;
+            cout<< "Indo para: " << bestNodeTo.word << "|" << bestNodeTo.language << endl;
+            /*
+            for(int i = 0; i < idxLangFrom.size(); i++){
+                cout << nodeList[idxLangFrom[i]].word << "|" << nodeList[idxLangFrom[i]].language << "; ";
+            }
+            cout << endl;
+            for(int i = 0; i < idxLangTo.size(); i++){
+                cout << nodeList[idxLangTo[i]].word << "|" << nodeList[idxLangTo[i]].language << "; ";
+            }
+            cout << endl;
+            cout<< "Saindo de: " << bestNodeFrom.word << "|" << bestNodeFrom.language << endl;
+            cout<< "Indo para: " << bestNodeTo.word << "|" << bestNodeTo.language << endl;
+            cout<< "----------------" << endl;        
+            int res = returnDijkstraResult(bestNodeList,bestNodeTo);
+            cout << "resultado: " << res << endl;
+            */
+            int res = returnDijkstraResult(bestNodeList,bestNodeTo);
+            if (res == 0){
+                int distancia = bestNodeTo.distance + bestNodeTo.word.length();
+                cout << "Distancia: " << distancia << endl;
+                cout<< "----------------" << endl;
+            }
+            else{
+                cout << "impossivel" << endl;
+                cout << "-----------" << endl;
+            }
+        }
     }
 
 }
 
+
+
 int main() {
     string v_input;
-    //cin >> v_input;
-    //cout << v_input;
     string sample;
     sample = mySample();
-    //readSample(sample);
     buildGraph(sample);
 
-    //vector<vector<int>> graph;
-    //vector<int> v1 = {1, 2, 3};
-    //graph.push_back(v1);
-    //graph.push_back({1});
-    //graph[0].push_back(5);
-    //graph[1].push_back(5);
-    //graph[1].push_back(6);
 
-    //cout << graph[0][2] << endl;
-    //cout << graph[1][0] << endl;
-    //cout << graph[1][1] << endl;
-    //for(int i; i < graph[1].size(); i++){
-    //    cout << graph[1][i] << endl;
-    //}    
 
     return 0;
 }
