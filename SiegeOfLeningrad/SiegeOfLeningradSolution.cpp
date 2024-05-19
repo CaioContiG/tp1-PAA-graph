@@ -44,7 +44,7 @@ void Dijkstra(vector<Node>& graph, int sIdx){
 
     // Initializing
     for(unsigned int i = 0; i < graph.size(); i++){
-        graph[i].distance = 99999999;
+        graph[i].distance = 99999999; // MAX_INT bugged sometimes
         graph[i].parent = -2;
         graph[i].visited = 0;
         pq.push(graph[i]);
@@ -78,7 +78,7 @@ int main() {
     //cin.rdbuf(inputFile.rdbuf());
     //ofstream fileOut("output.txt"); 
     //cout.rdbuf(fileOut.rdbuf());
-    std::cout << std::fixed << std::setprecision(3);
+    std::cout << std::fixed << std::setprecision(3); // Setting precision
 
     // Declaring Variables
     unsigned int N, M, K; // Number of: strategic points, strategic roads, bullets
@@ -87,22 +87,22 @@ int main() {
     int A; // Number of enemy soldiers
     int ps; // Point location of enemy
     int sp, dp; // Start point and Destiny point
-
     vector<Node> graph; // Adjacency List Graph
-    int cnt = 0;
+
     while(true){
-        //if (cnt > 15){break;}
-        //cnt += 1;
         // Clearing graph
         graph.clear();
 
+        // Getting N
         cin >> N;
+
+        // If EOF break loop
         if(cin.fail()){
            if (cin.eof()){break;}
         }
+
         // Get Initial Variables
         cin >> M >> K >> prob;
-         // If EOF break loop
     
         // Allocating space and resizing for speed - this didnt work, why?
         //if (N > graph.capacity()) {graph.reserve(N);}
@@ -123,10 +123,7 @@ int main() {
             graph[pj].neighbors.push_back(Edge(pi,0));
             //cout<< "Pi: " << pi << ", tamanho vizinhanca: " << graph[pi].neighbors.size() << endl;
         }
-        // graph[0].neighbors.push_back(Edge(0,0));
-        // graph[0].neighbors.push_back(Edge(0,0));
-        // graph[0].neighbors.push_back(Edge(0,0));
-        // cout<< "Pi TESTE: " << 0 << ", tamanho vizinhanca: " << graph[0].neighbors.size() << endl;
+
         // Get number of soldiers
         cin >> A;
 
@@ -145,18 +142,7 @@ int main() {
                 int idxNeighbor = graph[i].neighbors[j].idxNeighbor;
                 graph[i].neighbors[j].cost = graph[idxNeighbor].n_soldier;
             }
-        }          
-            // for(unsigned int j = 0; j < graph[ps].neighbors.size(); j++){
-            //     int idxNeighbor = graph[ps].neighbors[j].idxNeighbor;
-            //     for(unsigned int k = 0; k < graph[idxNeighbor].neighbors.size(); k++){
-            //         //int idxNN = graph[idxNeighbor].neighbors[k].idxNeighbor;
-            //         if (graph[idxNeighbor].neighbors[k].idxNeighbor == ps){
-            //              graph[idxNeighbor].neighbors[k].cost += 1;
-            //              graph[idxNeighbor].neighbors[k].cost += 1;
-            //         }
-            //    }
-                
-            // }
+        }       
 
         // Get start point and destiny point
         cin >> sp >> dp;
@@ -179,12 +165,6 @@ int main() {
         }
 
         cout << finalProb << endl;
-        //cout << "From: " << sp << ", to: " << dp << endl;
-        //printResult(graph,graph[dp]);
-        //cout <<"Dad: " << graph[dp].parent << ", Final distance: " << finalDist <<"| Prob: "<< finalProb << endl;
-        //cout << graph[1].neighbors.size() << endl;
-        //cout << N << ", " << M << ", " << K << ", " << prob << ", " << A << endl;        
-        //cout << "-----" << endl;
     }
     return 0;
 }
