@@ -99,8 +99,9 @@ void printResult(vector<Node>& graph, Node end){
 int main() {
     ifstream inputFile("leningrad.txt");
     cin.rdbuf(inputFile.rdbuf());
-    //ofstream fileOut("output.txt"); 
-    //cout.rdbuf(fileOut.rdbuf());
+    ofstream fileOut("output.txt"); 
+    cout.rdbuf(fileOut.rdbuf());
+    std::cout << std::fixed << std::setprecision(3);
     
     // Declaring Variables
     unsigned int N, M, K; // Number of: strategic points, strategic roads, bullets
