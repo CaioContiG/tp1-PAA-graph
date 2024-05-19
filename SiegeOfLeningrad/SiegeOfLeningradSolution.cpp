@@ -57,6 +57,7 @@ void Dijkstra(vector<Node>& graph, int sIdx){
 
     while (!pq.empty()){
         Node n = pq.top();
+        if(n.distance > 99999){break;}
         idx = n.idx;
         graph[idx].visited = 1;
         pq.pop();
@@ -72,35 +73,11 @@ void Dijkstra(vector<Node>& graph, int sIdx){
     }
 }
 
-// Return Dijkstra 
-int returnDijkstraResult(vector<Node>& graph, Node end){
-    int r = 0;
-    if (end.parent > -1 ){
-        r = returnDijkstraResult(graph,graph[end.parent]);
-    }
-    if (end.parent == -2){
-        return -1;
-    }
-    return r + end.distance;
-}
-
-// Print Dijkstra result
-void printResult(vector<Node>& graph, Node end){
-    if (end.parent > -1 ){
-        printResult(graph,graph[end.parent]);
-    }
-    if (end.parent == -2){
-        cout << "nao chegou" << endl;
-    }
-    cout << "Node: " << end.idx <<", Soldier: " << end.n_soldier << ", ";
-    cout << "distancia: " << end.distance << endl;
-}
-
 int main() {
-    ifstream inputFile("leningrad.txt");
-    cin.rdbuf(inputFile.rdbuf());
-    ofstream fileOut("output.txt"); 
-    cout.rdbuf(fileOut.rdbuf());
+    //ifstream inputFile("leningrad.txt");
+    //cin.rdbuf(inputFile.rdbuf());
+    //ofstream fileOut("output.txt"); 
+    //cout.rdbuf(fileOut.rdbuf());
     std::cout << std::fixed << std::setprecision(3);
 
     // Declaring Variables
@@ -114,14 +91,18 @@ int main() {
     vector<Node> graph; // Adjacency List Graph
     int cnt = 0;
     while(true){
-        if (cnt > 5){break;}
-        cnt += 1;
+        //if (cnt > 15){break;}
+        //cnt += 1;
         // Clearing graph
         graph.clear();
 
+        cin >> N;
+        if(cin.fail()){
+           if (cin.eof()){break;}
+        }
         // Get Initial Variables
-        cin >> N >> M >> K >> prob;
-        //if (cin.eof()){break;} // If EOF break loop
+        cin >> M >> K >> prob;
+         // If EOF break loop
     
         // Allocating space and resizing for speed - this didnt work, why?
         //if (N > graph.capacity()) {graph.reserve(N);}
@@ -186,12 +167,16 @@ int main() {
         finalDist += graph[sp].n_soldier;
         float finalProb = 1;
 
-        if (finalDist > 0){
-            if(finalDist < 99999998){
-                finalProb = pow(prob,finalDist);
-            }        
+        if (graph[dp].parent == - 2){
+            finalProb = 0.000;
         }
-        if (finalDist > K){finalProb = 0;}
+        else{
+            if (finalDist > K){
+                finalProb = 0;
+            } else{
+            finalProb = pow(prob,finalDist);
+            }
+        }
 
         cout << finalProb << endl;
         //cout << "From: " << sp << ", to: " << dp << endl;
