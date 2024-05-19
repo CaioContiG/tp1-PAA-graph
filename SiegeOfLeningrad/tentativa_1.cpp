@@ -16,8 +16,9 @@ class Edge{
  class Node{
     public:
         int idx;
+        //int n_soldier;
+        vector<Edge> neighbors;
         int n_soldier;
-        vector<Edge> neighbors = {};
 
         // Dijkstra
         int distance;
@@ -27,6 +28,7 @@ class Edge{
         // Construtor
         Node(int i = -1){
             idx = i;
+            n_soldier = 0;
         }
 
         // Operator Overload for PQ
@@ -37,7 +39,7 @@ class Edge{
 
 // Dijkstra algorithm
 // If it stops when node end is closed, can be much faster
-vector<Node> Dijkstra(vector<Node>& graph, Node s){
+void Dijkstra(vector<Node>& graph, int sIdx){
     priority_queue<Node> pq;
 
     // Initializing
@@ -48,7 +50,7 @@ vector<Node> Dijkstra(vector<Node>& graph, Node s){
         pq.push(graph[i]);
     }
     
-    int idx = s.idx;
+    int idx = sIdx;
     graph[idx].distance = 0;
     graph[idx].parent = -1;
     pq.push(graph[idx]);
@@ -70,6 +72,29 @@ vector<Node> Dijkstra(vector<Node>& graph, Node s){
     }
 }
 
+// Return Dijkstra 
+int returnDijkstraResult(vector<Node>& graph, Node end){
+    int r = 0;
+    if (end.parent > -1 ){
+        r = returnDijkstraResult(graph,graph[end.parent]);
+    }
+    if (end.parent == -2){
+        return -1;
+    }
+    return r + end.distance;
+}
+
+// Print Dijkstra result
+void printResult(vector<Node>& graph, Node end){
+    if (end.parent > -1 ){
+        printResult(graph,graph[end.parent]);
+    }
+    if (end.parent == -2){
+        cout << "nao chegou" << endl;
+    }
+    cout << "Node: " << end.idx <<", Soldier: " << end.n_soldier << ", ";
+    cout << "distancia: " << end.distance << endl;
+}
 
 int main() {
     ifstream inputFile("leningrad.txt");
@@ -94,9 +119,12 @@ int main() {
         cin >> N >> M >> K >> prob;
         if (cin.eof()){break;} // If EOF break loop
     
-        // Allocating space and resizing for speed
-        if (N > graph.capacity()) {graph.reserve(N);}
-        graph.resize(N);
+        // Allocating space and resizing for speed - this didnt work, why?
+        //if (N > graph.capacity()) {graph.reserve(N);}
+        //graph.resize(N);
+        for(unsigned int i = 0; i < N; i++){
+            graph.push_back({});
+        }
 
         // Get points and add vertices/edges to the graph
         for(unsigned int i = 0; i < M; i++){
@@ -104,45 +132,65 @@ int main() {
             pi = pi - 1;
             pj = pj - 1;            
 
-            graph[pi] = Node(pi);
-            graph[pj] = Node(pj);
+            graph[pi].idx = pi;
+            graph[pj].idx = pj;
             graph[pi].neighbors.push_back(Edge(pj,0));
             graph[pj].neighbors.push_back(Edge(pi,0));
+            //cout<< "Pi: " << pi << ", tamanho vizinhanca: " << graph[pi].neighbors.size() << endl;
         }
-
+        // graph[0].neighbors.push_back(Edge(0,0));
+        // graph[0].neighbors.push_back(Edge(0,0));
+        // graph[0].neighbors.push_back(Edge(0,0));
+        // cout<< "Pi TESTE: " << 0 << ", tamanho vizinhanca: " << graph[0].neighbors.size() << endl;
         // Get number of soldiers
         cin >> A;
 
         // Get soldiers location and update cost of edges
         for(int i = 0; i < A; i++){
             cin >> ps;
-            ps = ps - 1;
-
-            // for all neighbors of ps, update edges to ps
-            // Matrix nxn would make it easier and faster            
-            for(unsigned int j = 0; j < graph[ps].neighbors.size(); j++){
-                int idxNeighbor = graph[ps].neighbors[j].idxNeighbor;
-                for(unsigned int k = 0; k < graph[idxNeighbor].neighbors.size(); k++){
-                    //int idxNN = graph[idxNeighbor].neighbors[k].idxNeighbor;
-                    if (graph[idxNeighbor].neighbors[k].idxNeighbor == ps){
-                         graph[idxNeighbor].neighbors[k].cost += 1;
-                    }
-               }
-                
-            }
+            ps = ps - 1;            
+            graph[ps].n_soldier += 1;
         }
+
+        // This step could be done in the step before, it is slow
+        // for all neighbors of ps, update edges to ps
+        // Matrix nxn would make it easier and faster  
+        for(unsigned int i = 0; i < graph.size(); i++){
+            for(unsigned int j = 0; j < graph[i].neighbors.size(); j++){
+                int idxNeighbor = graph[i].neighbors[j].idxNeighbor;
+                graph[i].neighbors[j].cost = graph[idxNeighbor].n_soldier;
+            }
+        }          
+            // for(unsigned int j = 0; j < graph[ps].neighbors.size(); j++){
+            //     int idxNeighbor = graph[ps].neighbors[j].idxNeighbor;
+            //     for(unsigned int k = 0; k < graph[idxNeighbor].neighbors.size(); k++){
+            //         //int idxNN = graph[idxNeighbor].neighbors[k].idxNeighbor;
+            //         if (graph[idxNeighbor].neighbors[k].idxNeighbor == ps){
+            //              graph[idxNeighbor].neighbors[k].cost += 1;
+            //              graph[idxNeighbor].neighbors[k].cost += 1;
+            //         }
+            //    }
+                
+            // }
 
         // Get start point and destiny point
         cin >> sp >> dp;
         sp = sp - 1;
         dp = dp - 1;
+        Dijkstra(graph,sp);
+        int finalDist = graph[dp].distance;
+        finalDist += graph[sp].n_soldier;
+        float finalProb = pow(prob,finalDist);
+        if (finalDist > K){finalProb = 0;}
 
-        cout << N << endl;
+        cout << finalProb << endl;
+        //cout << "From: " << sp << ", to: " << dp << endl;
+        //printResult(graph,graph[dp]);
+        //cout <<"Dad: " << graph[dp].parent << ", Final distance: " << finalDist <<"| Prob: "<< finalProb << endl;
+        //cout << graph[1].neighbors.size() << endl;
+        //cout << N << ", " << M << ", " << K << ", " << prob << ", " << A << endl;        
+        //cout << "-----" << endl;
     }
-
-
-
-
     return 0;
 }
 
