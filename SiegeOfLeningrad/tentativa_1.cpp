@@ -16,6 +16,7 @@ class Edge{
  class Node{
     public:
         int idx;
+        int n_soldier;
         vector<Edge> neighbors = {};
 
         // Dijkstra
@@ -34,9 +35,41 @@ class Edge{
         }
  };
 
-void getVar(int& N, int& M, int& K, float& p){
-    cin >> N >> M >> K >> p;
+// Dijkstra algorithm
+// If it stops when node end is closed, can be much faster
+vector<Node> Dijkstra(vector<Node>& graph, Node s){
+    priority_queue<Node> pq;
+
+    // Initializing
+    for(unsigned int i = 0; i < graph.size(); i++){
+        graph[i].distance = 99999999;
+        graph[i].parent = -2;
+        graph[i].visited = 0;
+        pq.push(graph[i]);
+    }
+    
+    int idx = s.idx;
+    graph[idx].distance = 0;
+    graph[idx].parent = -1;
+    pq.push(graph[idx]);
+
+    while (!pq.empty()){
+        Node n = pq.top();
+        idx = n.idx;
+        graph[idx].visited = 1;
+        pq.pop();
+        for(unsigned int j = 0; j < graph[idx].neighbors.size(); j++){
+            int neighbor_idx = graph[idx].neighbors[j].idxNeighbor;
+            int c = graph[idx].distance + graph[idx].neighbors[j].cost;
+            if (graph[neighbor_idx].visited == 0 && c < graph[neighbor_idx].distance){
+                graph[neighbor_idx].distance = c;
+                graph[neighbor_idx].parent = idx;
+                pq.push(graph[neighbor_idx]);
+            }
+        }
+    }
 }
+
 
 int main() {
     ifstream inputFile("leningrad.txt");
