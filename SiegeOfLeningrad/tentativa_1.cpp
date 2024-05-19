@@ -102,7 +102,7 @@ int main() {
     ofstream fileOut("output.txt"); 
     cout.rdbuf(fileOut.rdbuf());
     std::cout << std::fixed << std::setprecision(3);
-    
+
     // Declaring Variables
     unsigned int N, M, K; // Number of: strategic points, strategic roads, bullets
     float prob; // probability
@@ -112,7 +112,10 @@ int main() {
     int sp, dp; // Start point and Destiny point
 
     vector<Node> graph; // Adjacency List Graph
+    int cnt = 0;
     while(true){
+        if (cnt > 5){break;}
+        cnt += 1;
         // Clearing graph
         graph.clear();
 
@@ -179,9 +182,15 @@ int main() {
         sp = sp - 1;
         dp = dp - 1;
         Dijkstra(graph,sp);
-        int finalDist = graph[dp].distance;
+        unsigned int finalDist = graph[dp].distance;
         finalDist += graph[sp].n_soldier;
-        float finalProb = pow(prob,finalDist);
+        float finalProb = 1;
+
+        if (finalDist > 0){
+            if(finalDist < 99999998){
+                finalProb = pow(prob,finalDist);
+            }        
+        }
         if (finalDist > K){finalProb = 0;}
 
         cout << finalProb << endl;
