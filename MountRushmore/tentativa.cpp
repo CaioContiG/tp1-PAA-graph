@@ -89,10 +89,19 @@ int main() {
     }
 cout << "----------" << endl;
 
-
     // Testing pairs
     for(int i = 0; i < n; i++){
         cin >> word1 >> word2;
+
+        if (word1.size() == word2.size()){
+            for(unsigned int j = 0; j < word1.size();j++){
+                // DFS
+            }
+        }   
+        else{
+            // cout << "different size" << endl;
+        }
+
         cout << word1 << " " << word2 << endl;
     }
  
