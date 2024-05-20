@@ -50,16 +50,12 @@ void primAlg(vector<Node>& graph, vector<vector<double>>& weights){
     priority_queue<Node> pq;
     // Initializing
     for(unsigned int i = 0; i < graph.size(); i++){
-        //graph[i].distance = 99999999; // MAX_INT bugged sometimes
-        //graph[i].parent = -2;
-        //graph[i].visited = 0;
         pq.push(graph[i]);
     }
     //cout << "Prim:";
+    // maybe from 0 to n, faster
     while (!pq.empty()){
         Node n = pq.top();
-        //cout << n.idx << ", ";
-        //if(n.distance > 99999){break;}
         pq.pop();
         int idx = n.idx;
         graph[idx].visited = 1;
@@ -73,7 +69,6 @@ void primAlg(vector<Node>& graph, vector<vector<double>>& weights){
             }
         }
     }
-    //cout << endl;
 }
 
 double calcTotalDistance(vector<Node>& graph, vector<vector<double>>& weights){
@@ -84,7 +79,6 @@ double calcTotalDistance(vector<Node>& graph, vector<vector<double>>& weights){
                 cout << "Problem, parent -2" << endl;
             } else {
                 int idxParent = graph[i].parent;
-                //result += distanceTwoPoints(graph[i].x, graph[i].y, graph[idxParent].x,graph[idxParent].y);
                 result += weights[i][idxParent];
             }
         }
@@ -94,10 +88,10 @@ double calcTotalDistance(vector<Node>& graph, vector<vector<double>>& weights){
 }
 
 int main() {
-    //ifstream inputFile("simpleFF.txt");
-    //cin.rdbuf(inputFile.rdbuf());
-    //ofstream fileOut("output.txt"); 
-    //cout.rdbuf(fileOut.rdbuf());
+    ifstream inputFile("simpleFF.txt");
+    cin.rdbuf(inputFile.rdbuf());
+    ofstream fileOut("output.txt"); 
+    cout.rdbuf(fileOut.rdbuf());
     std::cout << std::fixed << std::setprecision(2); // Setting precision
     
     // Declaring Variables
