@@ -52,6 +52,7 @@ void primAlg(vector<Node>& graph, vector<vector<double>>& weights){
     for(unsigned int i = 0; i < graph.size(); i++){
         pq.push(graph[i]);
     }
+
     //cout << "Prim:";
     // maybe from 0 to n, faster
     while (!pq.empty()){
@@ -83,15 +84,15 @@ double calcTotalDistance(vector<Node>& graph, vector<vector<double>>& weights){
             }
         }
     }
-    // for some reason is divided by 100
+    // for some reason, result is divided by 100
     return result/100;
 }
 
 int main() {
-    ifstream inputFile("simpleFF.txt");
-    cin.rdbuf(inputFile.rdbuf());
-    ofstream fileOut("output.txt"); 
-    cout.rdbuf(fileOut.rdbuf());
+    //ifstream inputFile("simpleFF.txt");
+    //cin.rdbuf(inputFile.rdbuf());
+    //ofstream fileOut("output.txt"); 
+    //cout.rdbuf(fileOut.rdbuf());
     std::cout << std::fixed << std::setprecision(2); // Setting precision
     
     // Declaring Variables
@@ -100,17 +101,15 @@ int main() {
     vector<Node> graph; // Adjacency List Graph
     vector<vector<double>> edgesWeight; // NxN Matrix to grab edgesWeight quickly
 
-    // Grab C - not using
+    // Grab C - but not using
     cin >> C;
-    //cout << C << endl;
     int cnt = 0;
     while (true)
     {
         cnt+=1;
         // Clearing Variables
         graph.clear();
-        edgesWeight.clear();
-        
+        edgesWeight.clear();        
 
         // Grab number of people
         cin >> N;
@@ -128,12 +127,10 @@ int main() {
 
         // If EOF break loop (not using C variable)
         if(cin.fail()){if (cin.eof()){break;}}
-        //if(cnt == 7){cout << N << endl;}
 
         // Grab people's position and add node to graph
         for(int i = 0; i < N; i++){
             cin >> x >> y;
-            //if(cnt == 7) {cout << x << " " << y << endl;}
             graph[i].idx = i;
             graph[i].x = x;
             graph[i].y = y;
@@ -143,20 +140,11 @@ int main() {
         for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
                 double d = distanceTwoPoints(graph[i].x, graph[i].y, graph[j].x, graph[j].y);
-                //cout << "Distancia: " << graph[i].x << "," << graph[i].y << "," << graph[j].x << "," << graph[j].y << ": " << d << endl;
                 edgesWeight[i][j] = d;
                 edgesWeight[j][i] = d;
             }
         }
-
-        // for(int i = 0; i < edgesWeight.size(); i++){
-        //     for(int j = 0; j < edgesWeight[i].size(); j++){
-        //         cout << edgesWeight[i][j] << ", ";
-        //     }
-        //     cout << endl;
-        // }
         primAlg(graph,edgesWeight);
-        //if(cnt == 7) 
         cout << calcTotalDistance(graph,edgesWeight) << endl;
     }     
 
