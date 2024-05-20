@@ -9,7 +9,7 @@ class Node{
         double y;
 
         // PRIM
-        int distance;
+        double distance;
         int parent;
         int visited;
 
@@ -94,15 +94,15 @@ double calcTotalDistance(vector<Node>& graph, vector<vector<double>>& weights){
 }
 
 int main() {
-    ifstream inputFile("simpleFF.txt");
-    cin.rdbuf(inputFile.rdbuf());
-    ofstream fileOut("output.txt"); 
-    cout.rdbuf(fileOut.rdbuf());
+    //ifstream inputFile("simpleFF.txt");
+    //cin.rdbuf(inputFile.rdbuf());
+    //ofstream fileOut("output.txt"); 
+    //cout.rdbuf(fileOut.rdbuf());
     std::cout << std::fixed << std::setprecision(2); // Setting precision
     
     // Declaring Variables
     int C, N; // number of test cases and people
-    int x, y; // position of people
+    double x, y; // position of people
     vector<Node> graph; // Adjacency List Graph
     vector<vector<double>> edgesWeight; // NxN Matrix to grab edgesWeight quickly
 
@@ -154,7 +154,6 @@ int main() {
                 edgesWeight[j][i] = d;
             }
         }
-
 
         // for(int i = 0; i < edgesWeight.size(); i++){
         //     for(int j = 0; j < edgesWeight[i].size(); j++){
