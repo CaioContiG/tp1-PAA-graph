@@ -5,8 +5,8 @@ using namespace std;
 class Node{
     public:
         int idx;
-        float x;
-        float y;
+        double x;
+        double y;
 
         // PRIM
         int distance;
@@ -17,7 +17,7 @@ class Node{
         Node(int i = -1){
             idx = i;
             distance = INT_MAX;
-            parent = 0-2;
+            parent = -2;
             visited = 0;
         }
 
@@ -39,14 +39,14 @@ class Edge{
     }
 };
 
-float distanceTwoPoints(float x1, float y1, float x2, float y2){
-    float xd = x2 - x1;
-    float yd = y2 - y1;
+double distanceTwoPoints(double x1, double y1, double x2, double y2){
+    double xd = x2 - x1;
+    double yd = y2 - y1;
     return sqrt(xd*xd + yd*yd);
 }
 
 
-void primAlg(vector<Node>& graph, vector<vector<float>>& weights){
+void primAlg(vector<Node>& graph, vector<vector<double>>& weights){
     priority_queue<Node> pq;
     // Initializing
     for(unsigned int i = 0; i < graph.size(); i++){
@@ -55,15 +55,16 @@ void primAlg(vector<Node>& graph, vector<vector<float>>& weights){
         //graph[i].visited = 0;
         pq.push(graph[i]);
     }
+    //cout << "Prim:";
     while (!pq.empty()){
         Node n = pq.top();
+        //cout << n.idx << ", ";
         //if(n.distance > 99999){break;}
         pq.pop();
         int idx = n.idx;
-        graph[n.idx].visited = 1;
+        graph[idx].visited = 1;
 
         // It is a fully connected graph (but ij = ji can be optmized?)
-        // maybe i != idx, but I don't think so
         for(unsigned int i = 0; i < weights[idx].size(); i++){
             if(graph[i].visited == 0 && graph[i].distance > weights[idx][i]){
                 graph[i].distance = weights[idx][i];
@@ -72,27 +73,46 @@ void primAlg(vector<Node>& graph, vector<vector<float>>& weights){
             }
         }
     }
+    //cout << endl;
+}
+
+double calcTotalDistance(vector<Node>& graph, vector<vector<double>>& weights){
+    double result = 0;
+    for(unsigned int i = 0; i < graph.size(); i++){
+        if (graph[i].parent != -2){
+            if(graph[i].parent == -2){
+                cout << "Problem, parent -2" << endl;
+            } else {
+                int idxParent = graph[i].parent;
+                //result += distanceTwoPoints(graph[i].x, graph[i].y, graph[idxParent].x,graph[idxParent].y);
+                result += weights[i][idxParent];
+            }
+        }
+    }
+    // for some reason is divided by 100
+    return result/100;
 }
 
 int main() {
     ifstream inputFile("simpleFF.txt");
     cin.rdbuf(inputFile.rdbuf());
-    //ofstream fileOut("output.txt"); 
-    //cout.rdbuf(fileOut.rdbuf());
+    ofstream fileOut("output.txt"); 
+    cout.rdbuf(fileOut.rdbuf());
     std::cout << std::fixed << std::setprecision(2); // Setting precision
     
     // Declaring Variables
     int C, N; // number of test cases and people
-    float x, y; // position of people
+    int x, y; // position of people
     vector<Node> graph; // Adjacency List Graph
-    vector<vector<float>> edgesWeight; // NxN Matrix to grab edgesWeight quickly
+    vector<vector<double>> edgesWeight; // NxN Matrix to grab edgesWeight quickly
 
     // Grab C - not using
     cin >> C;
-    cout << C << endl;
-
+    //cout << C << endl;
+    int cnt = 0;
     while (true)
     {
+        cnt+=1;
         // Clearing Variables
         graph.clear();
         edgesWeight.clear();
@@ -114,12 +134,12 @@ int main() {
 
         // If EOF break loop (not using C variable)
         if(cin.fail()){if (cin.eof()){break;}}
-        cout << N << endl;
+        //if(cnt == 7){cout << N << endl;}
 
         // Grab people's position and add node to graph
         for(int i = 0; i < N; i++){
             cin >> x >> y;
-            cout << x << " " << y << endl;
+            //if(cnt == 7) {cout << x << " " << y << endl;}
             graph[i].idx = i;
             graph[i].x = x;
             graph[i].y = y;
@@ -128,16 +148,25 @@ int main() {
         // Update weights 
         for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
-                float d = distanceTwoPoints(graph[i].x, graph[i].y, graph[j].x, graph[j].y);
+                double d = distanceTwoPoints(graph[i].x, graph[i].y, graph[j].x, graph[j].y);
+                //cout << "Distancia: " << graph[i].x << "," << graph[i].y << "," << graph[j].x << "," << graph[j].y << ": " << d << endl;
                 edgesWeight[i][j] = d;
                 edgesWeight[j][i] = d;
             }
         }
-         
-    }
-        
 
- 
+
+        // for(int i = 0; i < edgesWeight.size(); i++){
+        //     for(int j = 0; j < edgesWeight[i].size(); j++){
+        //         cout << edgesWeight[i][j] << ", ";
+        //     }
+        //     cout << endl;
+        // }
+        primAlg(graph,edgesWeight);
+        //if(cnt == 7) 
+        cout << calcTotalDistance(graph,edgesWeight) << endl;
+    }     
+
     return 0;
 }
 // Input description
