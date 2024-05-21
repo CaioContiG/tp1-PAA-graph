@@ -1,10 +1,9 @@
-#include <iostream>
- 
+#include <bits/stdc++.h>  
 using namespace std;
  
 int main() {
-    //ifstream inputFile("simpleFF.txt");
-    //cin.rdbuf(inputFile.rdbuf());
+    ifstream inputFile("simpleArtwork.txt");
+    cin.rdbuf(inputFile.rdbuf());
     //ofstream fileOut("output.txt"); 
     //cout.rdbuf(fileOut.rdbuf());
 
