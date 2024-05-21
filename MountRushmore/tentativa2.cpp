@@ -80,7 +80,6 @@ int main() {
         int idxL1 = word2idx[a];
         int idxL2 = word2idx[b];
         graph[idxL1].neighbors.push_back(idxL2);
-        //cout << a << " " << b << endl;
     }
 
     // Testing pairs
@@ -91,10 +90,6 @@ int main() {
         if (word1.size() == word2.size()){
             for(unsigned int j = 0; j < word1.size();j++){
 
-                // Setting start node and end node
-                Node start(word2idx[word1[j]]);
-                Node to(word2idx[word2[j]]);
-
                 // Clearing visited graph
                 for(unsigned int k = 0; k < graph.size(); k++){
                     graph[k].visited = 0;
@@ -102,11 +97,13 @@ int main() {
                 }
 
                 // Searching path
-                if(word2idx.find(word1[j]) != word2idx.end() && word2idx.find(word2[j]) != word2idx.end()) { // If letter exist
+                if(word2idx.find(word1[j]) != word2idx.end()) { // If letter exist
                     int idxStart = word2idx[word1[j]];
-                    graph[idxStart].parent = -1;
-                    DFS(graph,start);                
                     int idxTarget = word2idx[word2[j]];
+
+                    graph[idxStart].parent = -1;
+                    DFS(graph,Node(idxStart));                
+                    
                     if (graph[idxTarget].parent == -2){
                     } else {
                         result = 1;
