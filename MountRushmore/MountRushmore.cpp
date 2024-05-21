@@ -7,25 +7,17 @@ class Node{
         int idx;
         double x;
         double y;
-        char letter;
         vector<int> neighbors;
 
-        // PRIM
-        double distance;
+        // DFS
         int parent;
         int visited;
 
         // Construtor
         Node(int i = -1){
             idx = i;
-            distance = INT_MAX;
             parent = -2;
             visited = 0;
-        }
-
-        // Operator Overload for PQ
-        bool operator<(const Node& n) const{
-            return this->distance > n.distance; // > NOT < because the lower the better
         }
 };
 
@@ -57,8 +49,6 @@ int main() {
     string word1, word2; // word pair
     vector<Node> graph;
     map<char,int> word2idx;
-    //graph.clear();
-    //word2idx.clear();
 
     cin >> m >> n;
 
@@ -71,13 +61,11 @@ int main() {
         if(word2idx.find(a) == word2idx.end()) {            
             word2idx.insert({a,cnt});
             graph.push_back(Node(cnt));
-            graph[cnt].letter = a;
             cnt += 1;
         }        
         if(word2idx.find(b) == word2idx.end()) {            
             word2idx.insert({b,cnt});
             graph.push_back(Node(cnt));
-            graph[cnt].letter = b;
             cnt += 1;
         }        
 
@@ -116,7 +104,7 @@ int main() {
                 } else { // Letters don't exist im map
                     if (word1[j] == word2[j]){
                         result = 1;
-                    } else{
+                    }else{
                         result = 0;
                         break;
                     }
