@@ -58,7 +58,7 @@ void DFS(vector<Node>& graph, Node v){
 }
 
 int main() {
-    ifstream inputFile("simpleArtwork.txt");
+    ifstream inputFile("SimpleArtwork.txt");
     cin.rdbuf(inputFile.rdbuf());
     //ofstream fileOut("output.txt"); 
     //cout.rdbuf(fileOut.rdbuf());
@@ -77,7 +77,7 @@ int main() {
 
     // Getting variables
     cin >> M >> N >> K;
-    cout << M << " " << N << " " << K << endl;
+    //cout << M << " " << N << " " << K << endl;
 
     // Getting sensors and building graph
     for(int i = 0; i < K; i++){
@@ -92,13 +92,14 @@ int main() {
         newNode.sensor = newSensor;
         newNode.isSensor = 1;
         graph.push_back(newNode); // This can be slow, Alloc memory for speed
+        graph.push_back(newNode); // This can be slow, Alloc memory for speed
         sensorsList.push_back(newSensor); // This can be slow, Alloc memory for speed
 
         // If sensors are touching walls (nodes 0 1 2 3) add edge
         if(Y + newSensor.s >= N) {graph[newNode.idx].neighbors.push_back(0); graph[0].neighbors.push_back(newNode.idx);}
         if(X + newSensor.s >= M) {graph[newNode.idx].neighbors.push_back(1); graph[1].neighbors.push_back(newNode.idx);}
         if(Y - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(2); graph[2].neighbors.push_back(newNode.idx);}
-        if(Y - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(3); graph[3].neighbors.push_back(newNode.idx);}
+        if(X - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(3); graph[3].neighbors.push_back(newNode.idx);}
 
         // See if touch other sensor
         // -1  to not add if is the same sensor
@@ -118,7 +119,7 @@ int main() {
     DFS(graph,0);
     int result = 1;
 
-   //cout << graph[1].parent << ", " << graph[2].parent << ", " << endl;
+//cout << graph[1].parent << ", " << graph[2].parent << ", " << endl;
 
     for(unsigned int i = 0; i < graph.size(); i++){
         //cout << "Node " << i << " vizinhos:  ";
@@ -149,7 +150,6 @@ int main() {
     } else {
         cout << "N" << endl;
     }
-
 
     return 0;
 }
