@@ -46,6 +46,17 @@ double distanceTwoPoints(double x1, double y1, double x2, double y2){
     return sqrt(xd*xd + yd*yd);
 }
 
+void DFS(vector<Node>& graph, Node v){
+    graph[v.idx].visited = 1;
+    for(unsigned int i = 0; i < graph[v.idx].neighbors.size(); i++){
+        int idxNeighbor = graph[v.idx].neighbors[i];
+        if (graph[idxNeighbor].visited == 0){
+            graph[idxNeighbor].parent = graph[v.idx].idx;
+            DFS(graph,graph[idxNeighbor]);
+        }
+    }
+}
+
 int main() {
     ifstream inputFile("simpleArtwork.txt");
     cin.rdbuf(inputFile.rdbuf());
@@ -99,6 +110,13 @@ int main() {
             }
         }
 
+        // Testing if path is blocked
+
+        // If wall 0 finds 2
+
+        // If wall 3 finds 1
+
+        // If wall 0 finds 1
         cout << X << " " << Y << " " << S << endl; 
     }  
 
