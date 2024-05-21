@@ -118,29 +118,31 @@ int main() {
     DFS(graph,0);
     int result = 1;
 
-    cout << graph[1].parent << ", " << graph[2].parent << ", " << endl;
+   //cout << graph[1].parent << ", " << graph[2].parent << ", " << endl;
 
     for(unsigned int i = 0; i < graph.size(); i++){
-        cout << "Node " << i << " vizinhos:  ";
+        //cout << "Node " << i << " vizinhos:  ";
         for(unsigned int j = 0; j < graph[i].neighbors.size();j++){
-            cout << graph[i].neighbors[j] << ", ";
+            //cout << graph[i].neighbors[j] << ", ";
         }
-        cout << endl;
+        //cout << endl;
     }
 
-    if(graph[1].parent != -2 || graph[2].parent != -2){result = 0;}
+    if(graph[1].parent != -2 || graph[2].parent != -2){
+        result = 0;
+        }
     else{
         // Clearing graph
         for(unsigned int i = 0; i < graph.size(); i++){
             graph[i].visited = 0;
             graph[i].parent = -2;
         }
-        // If wall 3 finds 1
+        // If wall 3 finds 1 or 2
         DFS(graph,3);
-        if(graph[1].parent != -2){result = 0;}
+        if(graph[1].parent != -2 || graph[2].parent != -2){result = 0;}
     }
 
-    cout << graph[1].parent << endl;
+    //cout << graph[1].parent << ", " << graph[2].parent << endl;
 
     if (result == 1){
         cout << "S" << endl;
