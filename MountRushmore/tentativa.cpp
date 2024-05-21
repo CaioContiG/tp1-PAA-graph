@@ -40,6 +40,29 @@ class Edge{
         cost = c;
     }
 };
+
+
+int DFS(vector<Node>& graph, Node& v, Node& objective){
+    int idx = v.idx;
+    int idxObjective = objective.idx;
+    graph[idx].visited = 1;
+    int result = 0;
+    if (idx == idxObjective){
+        result = 1;
+        return result;
+    }
+    else{
+        for(unsigned int i = 0; i < graph[idx].neighbors.size(); i++){
+            int idxNeighbor = graph[idx].neighbors[i];
+            if(graph[idxNeighbor].visited == 0){
+                result = DFS(graph,graph[idxNeighbor],objective);
+                if (result == 1){break;}
+            }
+        }
+    }
+    return result;
+}
+
 int main() {
 
     ifstream inputFile("SimpleMountRushmore.txt");
@@ -82,43 +105,38 @@ int main() {
         cout << a << " " << b << endl;
     }
 
-    cout << "KEY\tELEMENT\n"; 
-    for (auto itr = word2idx.begin(); itr != word2idx.end(); ++itr) { 
-        cout << itr->first 
-             << '\t' << itr->second << '\n'; 
-    }
-cout << "----------" << endl;
-
     // Testing pairs
+    int result = 0;    
     for(int i = 0; i < n; i++){
         cin >> word1 >> word2;
-
+        int wordResult = 0; 
         if (word1.size() == word2.size()){
             for(unsigned int j = 0; j < word1.size();j++){
-                // DFS
-            }
-        }   
-        else{
-            // cout << "different size" << endl;
-        }
 
+                // Setting start node and end node
+                Node start(word2idx[word1[j]]);
+                Node to(word2idx[word2[j]]);
+
+                // Clearing visited graph
+                for(unsigned int k = 0; k < graph.size(); k++){
+                    graph[k].visited = 0;
+                }
+
+                // Searching path
+                wordResult = DFS(graph,start,to);                
+                if (wordResult == 0){
+                    cout << "Falhou em: " << graph[word2idx[word1[j]]].idx << ", " << graph[word2idx[word2[j]]].idx << endl;
+                    result = 0;
+                    break;
+                }
+                else{
+                    result = 1;
+                }
+            }
+        } 
         cout << word1 << " " << word2 << endl;
+        cout << result << endl;
     }
- 
-    // // Mapping letter string to int (idx)
-    // map<string,int> lang2idx;
-    // lang2idx.clear();
-    // int langCounter = 0;
-    
-    // // Mapping language to idx
-    // if(lang2idx.find(l1) == lang2idx.end()){
-    //     lang2idx.insert({l1, langCounter});
-    //     langCounter += 1;
-    // }
-    // if(lang2idx.find(l2) == lang2idx.end()){
-    //     lang2idx.insert({l2, langCounter});
-    //     langCounter += 1;
-    // }      
  
     return 0;
 }
