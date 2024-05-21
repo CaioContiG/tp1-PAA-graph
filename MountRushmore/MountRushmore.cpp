@@ -29,7 +29,7 @@ class Node{
         }
 };
 
-int DFS(vector<Node>& graph, Node& v, Node& objective){
+int DFS(vector<Node>& graph, Node v, Node objective){
     int idx = v.idx;
     int idxObjective = objective.idx;
     graph[idx].visited = 1;
@@ -57,6 +57,8 @@ int main() {
     string word1, word2; // word pair
     vector<Node> graph;
     map<char,int> word2idx;
+    //graph.clear();
+    //word2idx.clear();
 
     cin >> m >> n;
 
@@ -91,24 +93,33 @@ int main() {
         int wordResult = 0; 
         if (word1.size() == word2.size()){
             for(unsigned int j = 0; j < word1.size();j++){
+                // If letters exists in map
+                if(word2idx.find(word1[j]) != word2idx.end() && word2idx.find(word2[j]) != word2idx.end()){
+                    // Setting start node and end node
+                    Node start(word2idx[word1[j]]);
+                    Node to(word2idx[word2[j]]);
+                
+                    // Clearing visited graph
+                    for(unsigned int k = 0; k < graph.size(); k++){
+                        graph[k].visited = 0;
+                    }
 
-                // Setting start node and end node
-                Node start(word2idx[word1[j]]);
-                Node to(word2idx[word2[j]]);
-
-                // Clearing visited graph
-                for(unsigned int k = 0; k < graph.size(); k++){
-                    graph[k].visited = 0;
-                }
-
-                // Searching path
-                wordResult = DFS(graph,start,to);                
-                if (wordResult == 0){
-                    result = 0;
-                    break;
-                }
-                else{
-                    result = 1;
+                    // Searching path
+                    wordResult = DFS(graph,start,to);                
+                    if (wordResult == 0){
+                        result = 0;
+                        break;
+                    }
+                    else{
+                        result = 1;
+                    }
+                } else { // Letters don't exist im map
+                    if (word1[j] == word2[j]){
+                        result = 1;
+                    } else{
+                        result = 0;
+                        break;
+                    }
                 }
             }
         }
