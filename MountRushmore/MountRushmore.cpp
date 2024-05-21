@@ -29,19 +29,6 @@ class Node{
         }
 };
 
-class Edge{
-    public:
-        int idxNeighbor;
-        int cost;
-
-    // Constructor
-    Edge(int in, int c){
-        idxNeighbor = in;
-        cost = c;
-    }
-};
-
-
 int DFS(vector<Node>& graph, Node& v, Node& objective){
     int idx = v.idx;
     int idxObjective = objective.idx;
@@ -64,12 +51,6 @@ int DFS(vector<Node>& graph, Node& v, Node& objective){
 }
 
 int main() {
-
-    ifstream inputFile("MountRushmore.txt");
-    cin.rdbuf(inputFile.rdbuf());
-    ofstream fileOut("output.txt"); 
-    cout.rdbuf(fileOut.rdbuf());
-
     // Variables
     int m, n; // number of translations, of word pairs
     char a, b; // a (letter) translates to b (letter)
@@ -78,7 +59,6 @@ int main() {
     map<char,int> word2idx;
 
     cin >> m >> n;
-    //cout << m << " " << n << endl;
 
     // Getting translations - Building Graph
     int cnt = 0;
@@ -102,7 +82,6 @@ int main() {
         int idxL1 = word2idx[a];
         int idxL2 = word2idx[b];
         graph[idxL1].neighbors.push_back(idxL2);
-        //cout << a << " " << b << endl;
     }
 
     // Testing pairs
@@ -125,7 +104,6 @@ int main() {
                 // Searching path
                 wordResult = DFS(graph,start,to);                
                 if (wordResult == 0){
-                    //cout << "Falhou em: " << graph[word2idx[word1[j]]].idx << ", " << graph[word2idx[word2[j]]].idx << endl;
                     result = 0;
                     break;
                 }
@@ -137,14 +115,13 @@ int main() {
         else{
             result = 0;
         }
-        //cout << word1 << " " << word2 << endl;
+
         if(result == 1){
             cout << "yes" << endl;
         }
         else{
             cout << "no" << endl;
         }
-        //cout << result << endl;
     }
  
     return 0;
