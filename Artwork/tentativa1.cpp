@@ -95,10 +95,10 @@ int main() {
         sensorsList.push_back(newSensor); // This can be slow, Alloc memory for speed
 
         // If sensors are touching walls (nodes 0 1 2 3) add edge
-        if(Y + newSensor.s >= N) {graph[newNode.idx].neighbors.push_back(0);}
-        if(X + newSensor.s >= M) {graph[newNode.idx].neighbors.push_back(1);}
-        if(Y - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(2);}
-        if(Y - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(3);}
+        if(Y + newSensor.s >= N) {graph[newNode.idx].neighbors.push_back(0); graph[0].neighbors.push_back(newNode.idx);}
+        if(X + newSensor.s >= M) {graph[newNode.idx].neighbors.push_back(1); graph[1].neighbors.push_back(newNode.idx);}
+        if(Y - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(2); graph[2].neighbors.push_back(newNode.idx);}
+        if(Y - newSensor.s <= 0) {graph[newNode.idx].neighbors.push_back(3); graph[3].neighbors.push_back(newNode.idx);}
 
         // See if touch other sensor
         // -1  to not add if is the same sensor
@@ -109,16 +109,45 @@ int main() {
                 graph[sensorsList[j].idxGraph].neighbors.push_back(newNode.idx);
             }
         }
+        //cout << X << " " << Y << " " << S << endl; 
+    }
+    // Testing if path is blocked
 
-        // Testing if path is blocked
+    // If wall 0 finds 2 or 1
+    graph[0].visited = -1;
+    DFS(graph,0);
+    int result = 1;
 
-        // If wall 0 finds 2
+    cout << graph[1].parent << ", " << graph[2].parent << ", " << endl;
 
+    for(unsigned int i = 0; i < graph.size(); i++){
+        cout << "Node " << i << " vizinhos:  ";
+        for(unsigned int j = 0; j < graph[i].neighbors.size();j++){
+            cout << graph[i].neighbors[j] << ", ";
+        }
+        cout << endl;
+    }
+
+    if(graph[1].parent != -2 || graph[2].parent != -2){result = 0;}
+    else{
+        // Clearing graph
+        for(unsigned int i = 0; i < graph.size(); i++){
+            graph[i].visited = 0;
+            graph[i].parent = -2;
+        }
         // If wall 3 finds 1
+        DFS(graph,3);
+        if(graph[1].parent != -2){result = 0;}
+    }
 
-        // If wall 0 finds 1
-        cout << X << " " << Y << " " << S << endl; 
-    }  
+    cout << graph[1].parent << endl;
+
+    if (result == 1){
+        cout << "S" << endl;
+    } else {
+        cout << "N" << endl;
+    }
+
 
     return 0;
 }
