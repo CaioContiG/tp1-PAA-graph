@@ -24,6 +24,20 @@ class Node{
         }
 };
 
+class Edge{
+    public:
+        int idxNeighbor;
+        int cost;
+        int flow;
+
+    // Constructor
+    Edge(int in = 0, int c = 0){
+        idxNeighbor = in;
+        cost = c;
+        flow = 0;
+    }
+};
+
 // Dijkstra algorithm
 // If it stops when node end is closed, can be much faster
 void Dijkstra(vector<Node>& graph, int sIdx, int edgesMatrix[100][100]){
@@ -52,15 +66,57 @@ void Dijkstra(vector<Node>& graph, int sIdx, int edgesMatrix[100][100]){
         for(unsigned int j = 0; j < graph[idx].neighbors.size(); j++){
             //cout << "entrou no for" << endl;
             int neighbor_idx = graph[idx].neighbors[j];
-            //cout << "neighbor: " << neighbor_idx << endl;
-            int c = graph[idx].distance + edgesMatrix[idx][neighbor_idx];
-            if (graph[neighbor_idx].visited == 0 && c < graph[neighbor_idx].distance){
-                graph[neighbor_idx].distance = c;
-                graph[neighbor_idx].parent = idx;
-                pq.push(graph[neighbor_idx]);
+            if (neighbor_idx >= 0){
+                //cout << "neighbor: " << neighbor_idx << endl;
+                int c = graph[idx].distance + edgesMatrix[idx][neighbor_idx];
+                if (graph[neighbor_idx].visited == 0 && c < graph[neighbor_idx].distance){
+                    graph[neighbor_idx].distance = c;
+                    graph[neighbor_idx].parent = idx;
+                    pq.push(graph[neighbor_idx]);
+                }
             }
         }
     }
+}
+
+// Can be faster using edgesMatrix
+void removeEdges(vector<Node>& graph, int eIdx){
+    //cout << "entrou: " << eIdx << endl;
+    if(graph[eIdx].parent >= 0){
+        removeEdges(graph,graph[eIdx].parent);
+        int idxParent = graph[eIdx].parent;
+        for(unsigned int i = 0; i < graph[eIdx].neighbors.size(); i++){
+            if (graph[eIdx].neighbors[i] == idxParent){
+                graph[eIdx].neighbors[i] = -1; // "Removed"
+            }
+        }
+        for(unsigned int i = 0; i < graph[idxParent].neighbors.size(); i++){
+            if (graph[idxParent].neighbors[i] == eIdx){
+                graph[idxParent].neighbors[i] = -1; // "Removed"
+            }
+        }
+    }
+}
+
+void clearGraph(vector<Node>& graph){
+    for(unsigned int i = 0; i < graph.size();i++){
+        graph[i].distance = 99999999; // MAX_INT bugged sometimes
+        graph[i].parent = -2;
+        graph[i].visited = 0;
+    }
+}
+
+// Print Dijkstra result
+void printResult(vector<Node>& graph, Node end){
+    if (end.parent > -1 ){
+        cout << end.idx << " -> ";
+        printResult(graph,graph[end.parent]);
+    }
+    if (end.parent == -2){
+        cout << "nao chegou" << endl;
+    }
+    //cout << end.word << "|" << end.language << " ";
+    //cout << "distancia: " << end.distance << endl;
 }
 
 int main() {
@@ -75,10 +131,12 @@ int main() {
     int A, B, C; // Route A<->B and cost C
     int D, K; // Number of friends and free sits
     vector<Node> graph;
+    vector<vector<Edge>> edgesMatrix;
 
     int cnt = 0;
     while(true){
         graph.clear();
+        edgesMatrix.clear();
 
         // Instancia Counter
         cnt += 1;
@@ -99,7 +157,7 @@ int main() {
             graph.push_back(Node(i));
         }
 
-        cout << N << " " << M << endl;
+        //cout << N << " " << M << endl;
 
         // Getting A B C and Building graph
         for(int i = 0; i < M; i++){
@@ -110,24 +168,84 @@ int main() {
             edgesWeight[B][A] = C;
             graph[B].neighbors.push_back(A);
             graph[A].neighbors.push_back(B);
-            cout << A << " " << B << " " << C << endl;
+            //cout << A << " " << B << " " << C << endl;
         }
 
-        //for(int i = 0; i < graph.size(); i++){
-        //    cout << i << ": ";
-        //    for(int j = 0; j < graph[i].neighbors.size();j++){
-        //        cout << graph[i].neighbors[j] << ", ";
-        //    }
-        //    cout<<endl;
-        //}
+        for(unsigned int i = 0; i < graph.size(); i++){
+            cout << i << ": ";
+            for(unsigned int j = 0; j < graph[i].neighbors.size();j++){
+                cout << graph[i].neighbors[j] << ", ";
+            }
+            cout<<endl;
+        }
         
         // Getting D and K
         cin >> D >> K;
-        cout << D << " " << K << endl;
+        //cout << D << " " << K << endl;
 
         // Dijkstra
-        Dijkstra(graph,0,edgesWeight);
+        //Dijkstra(graph,0,edgesWeight);
+        //cout << D % K << endl;
+        //cout << D / K << endl;
+        //cout << "-----" << endl;
+        int possible = 0;
+        int totalCost = 0;
+        if (K>=D){
+            Dijkstra(graph,0,edgesWeight);
+            if(graph[N-1].parent >= 0){
+                possible = 1;
+                totalCost = graph[N-1].distance*D;
+            }
+        }
+        else{
+            int remaining = D % K;
+            int div = D / K;
+            int repeat = 0;
+            if(remaining != 0){repeat = div + 1;}
+            else{repeat = div;}
+            cout << "Remaining and div: "<< remaining << ", " << div << endl;
+            for(int i = 0; i < repeat; i++){
+                Dijkstra(graph,0,edgesWeight);
+                        cout<< "---" << endl;
+                        for(unsigned int i = 0; i < graph.size(); i++){
+            cout << i << ": ";
+            for(unsigned int j = 0; j < graph[i].neighbors.size();j++){
+                cout << graph[i].neighbors[j] << ", ";
+            }
+            cout<<endl;
+        }
+        cout<< "---" << endl;
+                printResult(graph,graph[N-1]);
+                if(graph[N-1].parent >= 0){possible = 1;} 
+                else{possible = 0; break;}
+                //cout << "Distance: " << graph[N-1].distance << endl;
+                if(i < repeat - 1){
+                    totalCost += graph[N-1].distance*K;
+                    cout << "Total cost " << i << ": " << totalCost << endl;
+                } 
+                else{
+                    cout << "Distance:  " << graph[N-1].distance << ": " << totalCost << endl;
+                    if(remaining == 0){
+                        totalCost += graph[N-1].distance*K;
+                        cout << "Total cost " << i << ": " << totalCost << endl;
+                    }else{
+                        totalCost += graph[N-1].distance*remaining;
+                    }
+                }
+                removeEdges(graph,N-1);
+            }
+        }
 
+    cout << "Instancia " << cnt << endl;
+    if(possible == 1){
+        //cout << "Sim" << endl;
+        cout << "Custo: "<< totalCost << endl;
+    }
+    else{
+        cout << "Impossivel" << endl;
+        //cout << "Custo: "<< totalCost << endl;
+    }
+    cout << endl;
     }
     return 0;
 }
