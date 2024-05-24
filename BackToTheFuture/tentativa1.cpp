@@ -31,7 +31,7 @@ class Edge{
         int flow;
 
     // Constructor
-    Edge(int in = 0, int c = 0){
+    Edge(int in = 0, int c = INT_MAX){
         idxNeighbor = in;
         cost = c;
         flow = 0;
@@ -152,11 +152,23 @@ int main() {
         // 100x100 (max) Matrix to grab edgesWeight quickly
         int edgesWeight[100][100];
 
-        // Initializing graph - (THIS IS SLOW?)
+        // Initializing graph and edges - (THIS IS SLOW?)
         for(int i = 0; i < N; i++){
             graph.push_back(Node(i));
+            edgesMatrix.push_back({});
+        }
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < N; j++){
+                edgesMatrix[i].push_back(Edge(j,INT_MAX));
+            }
         }
 
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < N; j++){
+                cout << edgesMatrix[i][j].idxNeighbor << ", ";
+            }
+            cout<<endl;
+        }
         //cout << N << " " << M << endl;
 
         // Getting A B C and Building graph
